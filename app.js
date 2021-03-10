@@ -18,18 +18,12 @@ app.post('/upload', upload.single('receipt'), async (req, res) => {
   console.log(file)
   const multerText = Buffer.from(file.buffer).toString()
   console.log(multerText)
-  // console.log(multerText.split('\r\n'))
-  const positionToCategory = {
-    0: 'name',
-    1: 'phone',
-    2: 'GST',
-    3: 'empty',
-    4: 'date',
-    5: 'receiptId',
-    6: 'line',
 
-  }
   const arr = multerText.split('\r\n')
+  const date = arr[4].slice(5, 15)
+  const time = arr[4].slice(22)
+  const receiptId = arr[5].slice(arr[5].search('ID') + 3)
+  console.log(receiptId)
   let i = 7 // purchase items start from arr[7]
   const itemNumbers = []
   const itemNames = []
@@ -58,7 +52,7 @@ app.post('/upload', upload.single('receipt'), async (req, res) => {
 
     i++
   }
-  console.log(itemNumbers, itemNames, purchaseQty, itemDollars)
+  console.log(date, time, itemNumbers, itemNames, purchaseQty, itemDollars)
   console.log('i: ', i)
   const result = {
     text: multerText
