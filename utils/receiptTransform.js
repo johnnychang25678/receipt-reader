@@ -3,7 +3,7 @@ const receiptTransform = (file) => {
   const arr = multerText.split('\r\n')
   const date = arr[4].slice(5, 15)
   const time = arr[4].slice(22)
-  const receiptID = arr[5].slice(arr[5].search('ID') + 3)
+  const receiptID = arr[5].slice(arr[5].search('ID') + 3).trim()
 
   let i = 7
   const itemNumbers = []
