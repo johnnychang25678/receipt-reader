@@ -68,8 +68,58 @@ app.post('/receipts/upload', upload.single('receipt'), async (req, res) => {
 
 })
 
+// get all receipts
+app.get('/receipts', async (req, res) => {
+  const receipts = await Receipt.findAll({
+    include: [
+      ReceiptItem,
+      { model: Item, as: 'Items' }
+    ]
+  })
+  if (!receipts || !receipts.length) {
+    return res.status(400).json('No receipts found')
+  }
+  return res.status(200).json(receipts)
+})
+
+// get single receipt
+app.get('/receipts/:id', async (req, res) => {
+  const { id } = req.params
+  const receipt = await Receipt.findByPk(id, {
+    include: [
+      ReceiptItem,
+      { model: Item, as: 'Items' }
+    ]
+  })
+
+  if (!receipt) {
+    return res.status(400).json('Receipt not found')
+  }
+  return res.status(200).json(receipt)
+
+})
+
+// edit receipt tag
+app.put('/receipts/:id', async (req, res) => {
+  const { id } = req.params
+  const { tagId } = req.body
+  // user can only input existed tagId
+  const tag = await Tag.findByPk(tagId)
+  if (!tag) {
+    return res.status(400).json('Please input valid tag')
+  }
+  const receipt = await Receipt.findByPk(id)
+  if (!receipt) {
+    return res.status(400).json('Receipt not found')
+  }
+  await receipt.update({
+    TagId: tagId
+  })
+  return res.status(200).json(receipt)
+})
+
 // get receipts from tagName
-app.get('/receipts/:tagName', async (req, res) => {
+app.get('/receipts/tags/:tagName', async (req, res) => {
   const { tagName } = req.params
   const receipts = await Tag.findOne({
     where: { tagName },
@@ -84,12 +134,12 @@ app.get('/receipts/:tagName', async (req, res) => {
 
     ]
   })
+  if (!receipts || receipts.length === 0) {
+    return res.status(400).json('Receipts not found, please enter valid tagName')
+  }
 
-  res.status(200).json(receipts)
+  return res.status(200).json(receipts)
 })
-
-app.post('/receipts/:id')
-
 
 // create tag
 app.post('/tags', async (req, res) => {
@@ -106,31 +156,29 @@ app.post('/tags', async (req, res) => {
 // read tags
 app.get('/tags', async (req, res) => {
   const tags = await Tag.findAll()
-  if (!tags || !tags.length) {
+  if (!tags || tags.length === 0) {
     return res.status(400).json('No tags found')
   }
   return res.status(200).json(tags)
 })
-// read tag
-app.get('/tags/:tagName', async (req, res) => {
-  const { tagName } = req.params
-  const tag = await Tag.findOne({
-    where: { tagName }
-  })
+// read single tag
+app.get('/tags/:tagId', async (req, res) => {
+  const { tagId } = req.params
+  const tag = await Tag.findByPk(tagId)
   if (!tag) {
-    return res.status(400).json('tagName doesn\'t exist!')
+    return res.status(400).json('tag doesn\'t exist!')
   }
   return res.status(200).json(tag)
 })
 
-// update
-app.put('/tags/:tagName', async (req, res) => {
-  const { tagName } = req.params
-  const tag = await Tag.findOne({
-    where: { tagName }
-  })
+// update single tag
+app.put('/tags/:tagId', async (req, res) => {
+  const { tagId } = req.params
+  const { tagName } = req.body // front end input tagName=newTagName
+  const tag = await Tag.findByPk(tagId)
+
   if (!tag) {
-    return res.status(400).json('tagName doesn\'t exist!')
+    return res.status(400).json('tag doesn\'t exist!')
   }
   const updatedTag = await tag.update({
     tagName
@@ -139,11 +187,13 @@ app.put('/tags/:tagName', async (req, res) => {
   return res.status(200).json(updatedTag)
 })
 
-// delete
-app.delete('/tags/:tagName', async (req, res) => {
-  const tag = await Tag.findOne({
-    where: { tagName }
-  })
+// delete single tag
+app.delete('/tags/:tagId', async (req, res) => {
+  const { tagId } = req.params
+  const tag = await Tag.findByPk(tagId)
+  if (!tag) {
+    return res.status(400).json('tag doesn\'t exist!')
+  }
   await tag.destroy()
   return res.status(200).json('delete success')
 })
