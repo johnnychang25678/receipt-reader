@@ -11,6 +11,9 @@ module.exports = {
       date: {
         type: Sequelize.STRING
       },
+      MerchantId: {
+        type: Sequelize.STRING
+      },
       time: {
         type: Sequelize.STRING
       },

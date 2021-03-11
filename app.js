@@ -13,7 +13,7 @@ app.post('/', (req, res) => {
   console.log(req.body)
 })
 
-app.post('/upload', upload.single('receipt'), async (req, res) => {
+app.post('/receipts/upload', upload.single('receipt'), async (req, res) => {
   const { file } = req
   console.log(file)
   const multerText = Buffer.from(file.buffer).toString()
@@ -61,6 +61,8 @@ app.post('/upload', upload.single('receipt'), async (req, res) => {
   res.send(result.text)
 })
 
+app.get('/receipts/:tag')
+app.post('/receipts/:id')
 
 
 app.listen(3000, () => console.log('App running at port 3000'))

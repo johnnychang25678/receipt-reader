@@ -20,7 +20,8 @@ module.exports = (sequelize, DataTypes) => {
   };
   Receipt.init({
     date: DataTypes.STRING,
-    time: DataTypes.STRING
+    time: DataTypes.STRING,
+    MerchantId: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'Receipt',
