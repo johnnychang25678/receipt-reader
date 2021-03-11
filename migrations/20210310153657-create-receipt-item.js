@@ -8,11 +8,11 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      ItemId: {
-        type: Sequelize.STRING
+      ReceiptId: { // FK from Receipt
+        type: Sequelize.INTEGER
       },
-      ReceiptId: {
-        type: Sequelize.STRING
+      ItemId: { // FK from Iten
+        type: Sequelize.INTEGER
       },
       quantity: {
         type: Sequelize.INTEGER

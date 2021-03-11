@@ -8,14 +8,20 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      date: {
-        type: Sequelize.STRING
+      MerchantId: { // FK from Merchant
+        type: Sequelize.INTEGER
       },
-      MerchantId: {
+      date: {
         type: Sequelize.STRING
       },
       time: {
         type: Sequelize.STRING
+      },
+      receiptID: {
+        type: Sequelize.STRING // from the merchant's receipt
+      },
+      TagId: { // FK from Tag
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,

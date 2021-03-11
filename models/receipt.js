@@ -16,12 +16,15 @@ module.exports = (sequelize, DataTypes) => {
         as: 'Items'
       })
       Receipt.hasMany(models.ReceiptItem)
+      Receipt.belongsTo(models.Tag)
     }
   };
   Receipt.init({
     date: DataTypes.STRING,
     time: DataTypes.STRING,
-    MerchantId: DataTypes.STRING,
+    MerchantId: DataTypes.INTEGER,
+    receiptID: DataTypes.STRING,
+    TagId: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'Receipt',

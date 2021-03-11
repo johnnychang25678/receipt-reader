@@ -1,11 +1,14 @@
 const express = require('express')
 const multer = require('multer')
-const getStream = require('get-stream')
+
+const db = require('./models/index')
+const { Receipt, Tag, ReceiptItem, Item } = db
 
 const app = express()
 const storage = multer.memoryStorage()
 const upload = multer({ storage })
 
+const receiptTransform = require('./utils/receiptTransform')
 
 app.use(express.urlencoded({ extended: true }))
 
@@ -15,54 +18,67 @@ app.post('/', (req, res) => {
 
 app.post('/receipts/upload', upload.single('receipt'), async (req, res) => {
   const { file } = req
-  console.log(file)
-  const multerText = Buffer.from(file.buffer).toString()
-  console.log(multerText)
-
-  const arr = multerText.split('\r\n')
-  const date = arr[4].slice(5, 15)
-  const time = arr[4].slice(22)
-  const receiptId = arr[5].slice(arr[5].search('ID') + 3)
-  console.log(receiptId)
-  let i = 7 // purchase items start from arr[7]
-  const itemNumbers = []
-  const itemNames = []
-  const purchaseQty = []
-  const itemDollars = []
-  while (arr[i] !== '') {
-    // handle items
-    if (i % 2 !== 0) {
-      const sliceIndex = arr[i].indexOf(' ')
-      const itemNumber = arr[i].slice(0, sliceIndex)
-      itemNumbers.push(itemNumber)
-      const itemName = arr[i].slice(sliceIndex + 1)
-      itemNames.push(itemName)
-    }
-
-    // handle quantity and dollar
-    if (i % 2 === 0) {
-      // slice the total from back and remove the spaces
-      const quantityByDollar = arr[i].slice(0, -20).split(' ').join('')
-      const sliceIndex = quantityByDollar.indexOf('x')
-      const quantity = quantityByDollar.slice(0, sliceIndex)
-      purchaseQty.push(quantity)
-      const dollar = quantityByDollar.slice(sliceIndex + 1)
-      itemDollars.push(dollar)
-    }
-
-    i++
+  const { tag } = req.body
+  if (!file || !tag) {
+    return res.status(400).json('File and tag are mandatory!')
   }
-  console.log(date, time, itemNumbers, itemNames, purchaseQty, itemDollars)
-  console.log('i: ', i)
-  const result = {
-    text: multerText
+  const tagExist = await Tag.findOne({
+    where: { tagName: tag }
+  })
+  let newTag
+  if (!tagExist) {
+    newTag = await Tag.create({
+      tagName: tag
+    })
   }
-  console.log(arr)
-  res.send(result.text)
+  const receiptData = receiptTransform(file)
+  if (!receiptData) {
+    return res.status(500).json('Server Error')
+  }
+  const { date, time, receiptID, itemNumbers, itemNames, purchaseQty, itemDollars } = receiptData
+  const newReceipt = await Receipt.create({
+    MerchantId: 1,
+    receiptID,
+    date,
+    time,
+    TagId: tagExist ? tagExist.id : newTag.id
+  })
+  for (let i = 0; i < itemNumbers.length; i++) {
+    const itemExist = await Item.findOne({
+      where: { itemId: itemNumbers[i] }
+    })
+    let newItem
+    if (!itemExist) {
+      newItem = await Item.create({
+        itemId: itemNumbers[i],
+        itemName: itemNames[i],
+        price: itemDollars[i]
+      })
+    }
+    await ReceiptItem.create({
+      ItemId: itemExist ? itemExist.id : newItem.id,
+      ReceiptId: newReceipt.id,
+      quantity: purchaseQty[i]
+    })
+
+  }
+
+  return res.json(receiptData)
+
 })
 
-app.get('/receipts/:tag')
+// get receipts from tagName
+app.get('/receipts/:tagName')
+
 app.post('/receipts/:id')
 
+// read
+app.get('/tags/:tagName')
+// create
+app.post('/tags')
+// update
+app.put('/tags/:tagName')
+// delete
+app.delete('/tags/:tagName')
 
 app.listen(3000, () => console.log('App running at port 3000'))

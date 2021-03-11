@@ -11,8 +11,8 @@ module.exports = {
       merchantName: {
         type: Sequelize.STRING
       },
-      UserId: {
-        type: Sequelize.STRING
+      UserId: { // FK from User
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,

@@ -11,9 +11,6 @@ module.exports = {
       tagName: {
         type: Sequelize.STRING
       },
-      ReceiptId: {
-        type: Sequelize.STRING
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

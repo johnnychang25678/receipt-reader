@@ -14,8 +14,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   ReceiptItem.init({
-    ItemId: DataTypes.STRING,
-    ReceiptId: DataTypes.STRING,
+    ItemId: DataTypes.INTEGER,
+    ReceiptId: DataTypes.INTEGER,
     quantity: DataTypes.INTEGER
   }, {
     sequelize,
