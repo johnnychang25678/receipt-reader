@@ -11,8 +11,4 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use(routes)
 
-app.post('/user/:id/merchant', async (req, res) => {
-  const { merchant } = req.body
-})
-
 app.listen(port, () => console.log(`App running at port ${port}`))
