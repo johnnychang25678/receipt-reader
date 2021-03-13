@@ -1,5 +1,7 @@
 const express = require('express')
 const router = express.Router()
+const helper = require('../helper')
+const { getUser } = helper
 
 const receiptTransform = require('../utils/receiptTransform')
 const db = require('../models')
@@ -17,13 +19,13 @@ router.post('/upload', upload.single('receipt'), async (req, res) => {
     return res.status(400).json('File and tag are mandatory!')
   }
   const tagExist = await Tag.findOne({
-    where: { tagName: tag, UserId: req.user.id }
+    where: { tagName: tag, UserId: getUser(req).id }
   })
   let newTag
   if (!tagExist) {
     newTag = await Tag.create({
       tagName: tag,
-      UserId: req.user.id
+      UserId: getUser(req).id
     })
   }
   const receiptData = receiptTransform(file)
@@ -33,7 +35,7 @@ router.post('/upload', upload.single('receipt'), async (req, res) => {
   const { date, time, receiptID, itemNumbers, itemNames, purchaseQty, itemDollars } = receiptData
 
   const newReceipt = await Receipt.create({
-    UserId: req.user.id,
+    UserId: getUser(req).id,
     receiptID,
     date,
     time,
@@ -64,7 +66,7 @@ router.post('/upload', upload.single('receipt'), async (req, res) => {
 // get all receipts
 router.get('/', async (req, res) => {
   const receipts = await Receipt.findAll({
-    where: { UserId: req.user.id },
+    where: { UserId: getUser(req).id },
     include: [
       ReceiptItem,
       { model: Item, as: 'Items' }
@@ -81,7 +83,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   const { id } = req.params
   const receipt = await Receipt.findByPk(id, {
-    where: { UserId: req.user.id },
+    where: { UserId: getUser(req).id },
     include: [
       ReceiptItem,
       { model: Item, as: 'Items' }
@@ -100,7 +102,7 @@ router.put('/:id', async (req, res) => {
   const { tagId } = req.body
   // user can only input existed tagId
   const tag = await Tag.findByPk(tagId, {
-    where: { UserId: req.user.id }
+    where: { UserId: getUser(req).id }
   })
   if (!tag) {
     return res.status(400).json('Please input valid tag')
@@ -119,7 +121,7 @@ router.put('/:id', async (req, res) => {
 router.get('/tags/:tagName', async (req, res) => {
   const { tagName } = req.params
   const receipts = await Tag.findOne({
-    where: { tagName, UserId: req.user.id },
+    where: { tagName, UserId: getUser(req).id },
     include: [
       {
         model: Receipt,

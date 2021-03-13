@@ -1,5 +1,7 @@
 const express = require('express')
 const router = express.Router()
+const helper = require('../helper')
+const { getUser } = helper
 
 const db = require('../models')
 const { Tag } = db
@@ -12,7 +14,7 @@ router.post('/', async (req, res) => {
   }
   const tag = await Tag.create({
     tagName,
-    UserId: req.user.id
+    UserId: getUser(req).id
   })
   return res.status(200).json(tag)
 })
@@ -20,7 +22,7 @@ router.post('/', async (req, res) => {
 // read tags
 router.get('/', async (req, res) => {
   const tags = await Tag.findAll({
-    where: { UserId: req.user.id }
+    where: { UserId: getUser(req).id }
   })
   if (!tags || tags.length === 0) {
     return res.status(400).json('No tags found')
@@ -34,7 +36,7 @@ router.get('/:tagId', async (req, res) => {
   const tag = await Tag.findOne({
     where: {
       id: tagId,
-      UserId: req.user.id
+      UserId: getUser(req).id
     }
   })
   if (!tag) {
@@ -50,7 +52,7 @@ router.put('/:tagId', async (req, res) => {
   const tag = await Tag.findOne({
     where: {
       id: tagId,
-      UserId: req.user.id
+      UserId: getUser(req).id
     }
   })
 
@@ -70,7 +72,7 @@ router.delete('/:tagId', async (req, res) => {
   const tag = await Tag.findOne({
     where: {
       id: tagId,
-      UserId: req.user.id
+      UserId: getUser(req).id
     }
   })
   if (!tag) {
