@@ -8,8 +8,8 @@ const { User } = db
 
 // register
 router.post('/register', async (req, res) => {
-  const { name, email, password, passwordCheck } = req.body
-  if (!name || !email || !password || !passwordCheck) {
+  const { name, merchant, tel, email, password, passwordCheck } = req.body
+  if (!name || !merchant || !tel || !email || !password || !passwordCheck) {
     return res.status(400).json('All fields are mandatory')
   }
   if (password !== passwordCheck) {
@@ -21,12 +21,29 @@ router.post('/register', async (req, res) => {
   if (user) {
     return res.status(400).json('The account already exist')
   }
+  const merchantName = await User.findOne({
+    where: { merchant }
+  })
+
+  if (merchantName) {
+    return res.status(400).json('The merchant name already exist')
+  }
 
   const salt = await bcrypt.genSalt(10)
   const hashedPassword = await bcrypt.hash(password, salt)
 
+  console.log({
+    name,
+    merchant,
+    tel,
+    email,
+    password: hashedPassword
+  })
+
   await User.create({
     name,
+    merchant,
+    tel,
     email,
     password: hashedPassword
   })

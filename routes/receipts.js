@@ -61,13 +61,14 @@ router.post('/upload', upload.single('receipt'), async (req, res) => {
 
 // get all receipts
 router.get('/', async (req, res) => {
-  console.log(req.user)
   const receipts = await Receipt.findAll({
+    where: { UserId: req.user.id },
     include: [
       ReceiptItem,
       { model: Item, as: 'Items' }
     ]
   })
+  console.log(receipts)
   if (!receipts || !receipts.length) {
     return res.status(400).json('No receipts found')
   }
@@ -78,6 +79,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   const { id } = req.params
   const receipt = await Receipt.findByPk(id, {
+    where: { UserId: req.user.id },
     include: [
       ReceiptItem,
       { model: Item, as: 'Items' }
