@@ -32,6 +32,7 @@ describe('tags CRUD', () => {
 
     this.getUser = sinon.stub(helper, 'getUser') // stub helper(req).user
       .returns({ id: 1 })
+
     await Tag.create({
       tagName: 'testTag1',
       UserId: 1

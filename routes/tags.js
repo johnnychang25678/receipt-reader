@@ -32,7 +32,6 @@ router.get('/', async (req, res) => {
 // read single tag
 router.get('/:tagId', async (req, res) => {
   const { tagId } = req.params
-  console.log(req.user.id)
   const tag = await Tag.findOne({
     where: {
       id: tagId,
