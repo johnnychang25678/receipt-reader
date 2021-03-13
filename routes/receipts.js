@@ -17,12 +17,13 @@ router.post('/upload', upload.single('receipt'), async (req, res) => {
     return res.status(400).json('File and tag are mandatory!')
   }
   const tagExist = await Tag.findOne({
-    where: { tagName: tag }
+    where: { tagName: tag, UserId: req.user.id }
   })
   let newTag
   if (!tagExist) {
     newTag = await Tag.create({
-      tagName: tag
+      tagName: tag,
+      UserId: req.user.id
     })
   }
   const receiptData = receiptTransform(file)
@@ -30,8 +31,9 @@ router.post('/upload', upload.single('receipt'), async (req, res) => {
     return res.status(500).json('Server Error')
   }
   const { date, time, receiptID, itemNumbers, itemNames, purchaseQty, itemDollars } = receiptData
+
   const newReceipt = await Receipt.create({
-    MerchantId: 1,
+    UserId: req.user.id,
     receiptID,
     date,
     time,
@@ -68,7 +70,7 @@ router.get('/', async (req, res) => {
       { model: Item, as: 'Items' }
     ]
   })
-  console.log(receipts)
+
   if (!receipts || !receipts.length) {
     return res.status(400).json('No receipts found')
   }
@@ -94,10 +96,12 @@ router.get('/:id', async (req, res) => {
 
 // edit receipt tag
 router.put('/:id', async (req, res) => {
-  const { id } = req.params
+  const { id } = req.params // receipt id
   const { tagId } = req.body
   // user can only input existed tagId
-  const tag = await Tag.findByPk(tagId)
+  const tag = await Tag.findByPk(tagId, {
+    where: { UserId: req.user.id }
+  })
   if (!tag) {
     return res.status(400).json('Please input valid tag')
   }
@@ -115,7 +119,7 @@ router.put('/:id', async (req, res) => {
 router.get('/tags/:tagName', async (req, res) => {
   const { tagName } = req.params
   const receipts = await Tag.findOne({
-    where: { tagName },
+    where: { tagName, UserId: req.user.id },
     include: [
       {
         model: Receipt,
