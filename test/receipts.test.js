@@ -9,7 +9,7 @@ const { User, Tag, Receipt, Item } = db
 const bcrypt = require('bcryptjs')
 const helper = require('../helper')
 
-describe('Receipt Upload', () => {
+describe('Receipt routes', () => {
   let token
   before(async () => { // register a user and get token before test
     await User.destroy({ where: {}, truncate: true })
@@ -60,6 +60,19 @@ describe('Receipt Upload', () => {
             item.price.should.equal(2.20)
             return done()
           })
+      })
+  })
+
+  it('Read receipts', (done) => {
+    request(app)
+      .get('/receipts')
+      .set('Authorization', 'Bearer ' + token)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err)
+        expect(res.body).to.be.an('array') // expect is from chai
+        res.body[0].receiptID.should.equal('122769')
+        return done()
       })
   })
 
