@@ -97,7 +97,7 @@ router.get('/:id', async (req, res) => {
 })
 
 // edit receipt tag
-router.put('/:id', async (req, res) => {
+router.put('/tags/:id', async (req, res) => {
   const { id } = req.params // receipt id
   const { tagId } = req.body
   // user can only input existed tagId
@@ -120,7 +120,8 @@ router.put('/:id', async (req, res) => {
 // get receipts from tagName
 router.get('/tags/:tagName', async (req, res) => {
   const { tagName } = req.params
-  const receipts = await Tag.findOne({
+  console.log('------------tagName: ', tagName)
+  const tag = await Tag.findOne({
     where: { tagName, UserId: getUser(req).id },
     include: [
       {
@@ -133,8 +134,15 @@ router.get('/tags/:tagName', async (req, res) => {
 
     ]
   })
+
+  if (!tag) {
+    return res.status(400).json('Please enter valid tagName')
+  }
+
+  const receipts = tag.Receipts
+
   if (!receipts || receipts.length === 0) {
-    return res.status(400).json('Receipts not found, please enter valid tagName')
+    return res.status(200).json('No receipts found')
   }
 
   return res.status(200).json(receipts)

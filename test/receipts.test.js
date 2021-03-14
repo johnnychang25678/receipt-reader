@@ -37,6 +37,10 @@ describe('Receipt routes', () => {
       tagName: 'testTag1',
       UserId: 1
     })
+    await Tag.create({
+      tagName: 'testTag2',
+      UserId: 1
+    })
   })
 
   it('Receipt upload', (done) => {
@@ -70,8 +74,50 @@ describe('Receipt routes', () => {
       .expect(200)
       .end((err, res) => {
         if (err) return done(err)
+        console.log(res.body)
         expect(res.body).to.be.an('array') // expect is from chai
         res.body[0].receiptID.should.equal('122769')
+        return done()
+      })
+  })
+
+  it('Read single receipt', (done) => {
+    request(app)
+      .get('/receipts/1')
+      .set('Authorization', 'Bearer ' + token)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err)
+        res.body.receiptID.should.equal('122769')
+        return done()
+      })
+  })
+
+  it('Edit receipt tag', (done) => {
+    request(app)
+      .put('/receipts/tags/1')
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        tagId: 2
+      })
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err)
+        res.body.TagId.should.equal(2)
+        return done()
+      })
+  })
+
+  it('get receipts from tag name', (done) => {
+    request(app)
+      .get('/receipts/tags/testTag2') // alerady changed receipt tag to tag 2 in previous test
+      .set('Authorization', 'Bearer ' + token)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err)
+        console.log(res.body)
+        expect(res.body).to.be.an('array')
+        res.body[0].TagId.should.equal(2)
         return done()
       })
   })
