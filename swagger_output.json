@@ -1,0 +1,693 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Receipt Reader REST API",
+    "description": ""
+  },
+  "host": "localhost:3000",
+  "basePath": "/",
+  "tags": [],
+  "schemes": [
+    "http"
+  ],
+  "consumes": [],
+  "produces": [],
+  "paths": {
+    "/user/register": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "description": "User Registration",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "type": "object",
+            "description": "All fields are mandatory",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "name"
+                },
+                "merchant": {
+                  "type": "string",
+                  "example": "Bobs Store"
+                },
+                "tel": {
+                  "type": "string",
+                  "example": "12345678"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "bob@example.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "123456"
+                },
+                "passwordCheck": {
+                  "type": "string",
+                  "example": "123456"
+                }
+              }
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respond with success message",
+            "schema": {
+              "type": "string",
+              "example": "Registration Sucess!",
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Will return 400 if password does not match or missing fileds or the email already existed or the merachant name already existed. The response is dependant on the situation.",
+            "schema": {
+              "type": "string",
+              "example": "The account already exist",
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/login": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "description": "User Login",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "type": "object",
+            "description": "Input email and password to login",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "example": "bob@example.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "123456"
+                }
+              }
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respond with a token object",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "type": "string",
+                  "example": "yourToken"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Will return 400 if password is wrong or missing fileds or the acoount does not exist. The response is dependant on the situation.",
+            "schema": {
+              "type": "string",
+              "example": "no such user found",
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/receipts/upload": {
+      "post": {
+        "tags": [
+          "Receipt"
+        ],
+        "description": "upload a receipt",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "type": "object",
+            "description": "Need to include tagName and file",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "tagName": {
+                  "type": "string",
+                  "example": "tagName"
+                },
+                "file": {
+                  "type": "string",
+                  "example": "file.txt"
+                }
+              }
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respond with a receipt object",
+            "schema": {
+              "$ref": "#definitions/Receipt"
+            }
+          },
+          "400": {
+            "description": "Respond with 400 if fields are missing.",
+            "schema": {
+              "type": "string",
+              "example": "File and tag are mandatory!",
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/receipts/": {
+      "get": {
+        "tags": [
+          "Receipt"
+        ],
+        "description": "Get receipts of current user",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Respond with an array with receipt objects",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Receipt"
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Respond with 400 if no receipts found.",
+            "schema": {
+              "type": "string",
+              "example": "No receipts found",
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/receipts/{id}": {
+      "get": {
+        "tags": [
+          "Receipt"
+        ],
+        "description": "Get a single receipt of current user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respond with a receipt object",
+            "schema": {
+              "$ref": "#/definitions/Receipt"
+            }
+          },
+          "400": {
+            "description": "Respond with 400 if no receipts found.",
+            "schema": {
+              "type": "string",
+              "example": "No receipts found",
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/receipts/tags/{id}": {
+      "put": {
+        "tags": [
+          "Receipt"
+        ],
+        "description": "update a tag of a receipt, user can only update the tag if the tag already exists in the database",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "type": "object",
+            "description": "Need to include tagId",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "tagId": {
+                  "type": "number",
+                  "example": 1
+                }
+              }
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respond with the updated receipt object",
+            "schema": {
+              "$ref": "#definitions/Receipt"
+            }
+          },
+          "400": {
+            "description": "Respond with 400 if tagId is invalid or receipt not found.",
+            "schema": {
+              "type": "string",
+              "example": "Please input valid tag",
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/receipts/tags/{tagName}": {
+      "get": {
+        "tags": [
+          "Receipt"
+        ],
+        "description": "Get a single receipt from tag name (tagName in params)",
+        "parameters": [
+          {
+            "name": "tagName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respond with an array of receipts object",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Receipt"
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Respond with 400 if no receipts found.",
+            "schema": {
+              "type": "string",
+              "example": "No receipts found",
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tags/": {
+      "post": {
+        "tags": [
+          "Tag"
+        ],
+        "description": "Create a tag",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "type": "object",
+            "description": "Input tag name",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "tagName": {
+                  "type": "string",
+                  "example": "tagName"
+                }
+              }
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respond with a tag object",
+            "schema": {
+              "$ref": "#definitions/Tag"
+            }
+          },
+          "400": {
+            "description": "Respond with 400 if no tagName.",
+            "schema": {
+              "type": "string",
+              "example": "tagName is mandatory!",
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Tag"
+        ],
+        "description": "Get tags of current user",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Respond with an array with tag objects",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Tag"
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Respond with 400 if no tags found.",
+            "schema": {
+              "type": "string",
+              "example": "tagName is mandatory!",
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tags/{tagId}": {
+      "get": {
+        "tags": [
+          "Tag"
+        ],
+        "description": "Get tags of current user",
+        "parameters": [
+          {
+            "name": "tagId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respond with a tag object",
+            "schema": {
+              "$ref": "#/definitions/Tag"
+            }
+          },
+          "400": {
+            "description": "Respond with 400 if no tags found.",
+            "schema": {
+              "type": "string",
+              "example": "tag doesnt exist!",
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Tag"
+        ],
+        "description": "Update a tag name",
+        "parameters": [
+          {
+            "name": "tagId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "type": "object",
+            "description": "Input tagName",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "tagName": {
+                  "type": "string",
+                  "example": "tagName"
+                }
+              }
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respond with updated tag object",
+            "schema": {
+              "$ref": "#definitions/Tag"
+            }
+          },
+          "400": {
+            "description": "Respond with 400 if tag not found.",
+            "schema": {
+              "type": "string",
+              "example": "tag doesnt exist!",
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Tag"
+        ],
+        "description": "Delete a tag",
+        "parameters": [
+          {
+            "name": "tagId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respond with success message",
+            "schema": {
+              "type": "string",
+              "example": "delete success",
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Respond with 400 if tag not found.",
+            "schema": {
+              "type": "string",
+              "example": "tag doesnt exist!",
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Tag": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number",
+          "example": 1
+        },
+        "tagName": {
+          "type": "string",
+          "example": "bob's tag"
+        },
+        "UserId": {
+          "type": "number",
+          "example": 1
+        },
+        "createdAt": {
+          "type": "string",
+          "example": "2021-03-13T03:24:00.000Z"
+        },
+        "updatedAt": {
+          "type": "string",
+          "example": "2021-03-13T03:24:00.000Z"
+        }
+      }
+    },
+    "Receipt": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number",
+          "example": 1
+        },
+        "date": {
+          "type": "string",
+          "example": "05.04.2020"
+        },
+        "time": {
+          "type": "string",
+          "example": "08:48:04"
+        },
+        "UserId": {
+          "type": "number",
+          "example": 1
+        },
+        "receiptID": {
+          "type": "string",
+          "example": "87450"
+        },
+        "TagId": {
+          "type": "number",
+          "example": 1
+        },
+        "createdAt": {
+          "type": "string",
+          "example": "2021-03-13T03:24:00.000Z"
+        },
+        "updatedAt": {
+          "type": "string",
+          "example": "2021-03-13T03:24:00.000Z"
+        },
+        "ReceiptItems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ItemId": {
+                "type": "number",
+                "example": 2
+              },
+              "ReceiptId": {
+                "type": "number",
+                "example": 1
+              },
+              "quantity": {
+                "type": "number",
+                "example": 1
+              },
+              "createdAt": {
+                "type": "string",
+                "example": "2021-03-13T03:24:00.000Z"
+              },
+              "updatedAt": {
+                "type": "string",
+                "example": "2021-03-13T03:24:00.000Z"
+              }
+            }
+          }
+        },
+        "Items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "number",
+                "example": 2
+              },
+              "itemId": {
+                "type": "string",
+                "example": "7622210400291"
+              },
+              "itemName": {
+                "type": "string",
+                "example": "Daily Milk Roast Almond"
+              },
+              "price": {
+                "type": "number",
+                "example": 3.8
+              },
+              "createdAt": {
+                "type": "string",
+                "example": "2021-03-13T03:24:00.000Z"
+              },
+              "updatedAt": {
+                "type": "string",
+                "example": "2021-03-13T03:24:00.000Z"
+              },
+              "ReceiptItem": {
+                "type": "object",
+                "properties": {
+                  "ItemId": {
+                    "type": "number",
+                    "example": 2
+                  },
+                  "ReceiptId": {
+                    "type": "number",
+                    "example": 1
+                  },
+                  "quantity": {
+                    "type": "number",
+                    "example": 1
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "example": "2021-03-13T03:24:00.000Z"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "example": "2021-03-13T03:24:00.000Z"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
