@@ -8,32 +8,6 @@ const { User } = db
 
 // register
 router.post('/register', async (req, res, next) => {
-  /*  #swagger.tags = ['User']
-        #swagger.description = 'User Registration'
-        #swagger.parameters['obj'] = {
-          in: 'body',
-          type: "object",
-          description: "All fields are mandatory",
-          schema: {
-              name: "name",
-              merchant: "Bobs Store",
-              tel: "12345678",
-              email: "bob@example.com",
-              password: "123456",
-              passwordCheck: "123456"
-            },
-          required: true
-        }
-        #swagger.responses[200] = {
-          description: 'Respond with success message',
-          schema: 'Registration Sucess!'
-        }
-        #swagger.responses[400] = {
-          description: "Will return 400 if password does not match or missing fileds or the email already existed or the merachant name already existed. The response is dependant on the situation.",
-          schema: "The account already exist"
-
-        }
-    */
   try {
     const { name, merchant, tel, email, password, passwordCheck } = req.body
     if (!name || !merchant || !tel || !email || !password || !passwordCheck) {
@@ -75,27 +49,6 @@ router.post('/register', async (req, res, next) => {
 
 // login
 router.post('/login', async (req, res, next) => {
-  /*  #swagger.tags = ['User']
-      #swagger.description = 'User Login'
-      #swagger.parameters['obj'] = {
-        in: 'body',
-        type: "object",
-        description: "Input email and password to login",
-        schema: {
-            email: "bob@example.com",
-            password: "123456",
-          },
-        required: true
-      }
-      #swagger.responses[200] = {
-        description: 'Respond with a token object',
-        schema: {token: "yourToken"}
-      }
-      #swagger.responses[400] = {
-        description: "Will return 400 if password is wrong or missing fileds or the acoount does not exist. The response is dependant on the situation.",
-        schema: "no such user found"
-      }
-  */
   try {
     const { email, password } = req.body
     if (!email || !password) {

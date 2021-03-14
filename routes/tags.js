@@ -45,17 +45,6 @@ router.post('/', async (req, res, next) => {
 
 // read tags
 router.get('/', async (req, res, next) => {
-  /*  #swagger.tags = ['Tag']
-      #swagger.description = 'Get tags of current user'
-      #swagger.responses[200] = {
-        description: 'Respond with an array with tag objects',
-        schema: [{"$ref": "#/definitions/Tag"}]
-      }
-      #swagger.responses[400] = {
-        description: "Respond with 400 if no tags found.",
-        schema: "tagName is mandatory!"
-      }
-  */
   try {
     const tags = await Tag.findAll({
       where: { UserId: getUser(req).id }
@@ -70,17 +59,6 @@ router.get('/', async (req, res, next) => {
 })
 // read single tag
 router.get('/:tagId', async (req, res, next) => {
-  /*  #swagger.tags = ['Tag']
-      #swagger.description = 'Get tags of current user'
-      #swagger.responses[200] = {
-        description: 'Respond with a tag object',
-        schema: {"$ref": "#/definitions/Tag"}
-      }
-      #swagger.responses[400] = {
-        description: "Respond with 400 if no tags found.",
-        schema: "tag doesnt exist!"
-      }
-  */
   try {
     const { tagId } = req.params
     const tag = await Tag.findOne({
@@ -100,26 +78,6 @@ router.get('/:tagId', async (req, res, next) => {
 
 // update single tag
 router.put('/:tagId', async (req, res, next) => {
-  /*  #swagger.tags = ['Tag']
-      #swagger.description = 'Update a tag name'
-      #swagger.parameters['obj'] = {
-        in: 'body',
-        type: "object",
-        description: "Input tagName",
-        schema: {
-            tagName: "tagName"
-          },
-        required: true
-      }
-      #swagger.responses[200] = {
-        description: 'Respond with updated tag object',
-        schema: {"$ref": "#definitions/Tag"}
-      }
-      #swagger.responses[400] = {
-        description: "Respond with 400 if tag not found.",
-        schema: "tag doesnt exist!"
-      }
-  */
   try {
     const { tagId } = req.params
     const { tagName } = req.body // front end input tagName=newTagName
@@ -145,17 +103,6 @@ router.put('/:tagId', async (req, res, next) => {
 
 // delete single tag
 router.delete('/:tagId', async (req, res, next) => {
-  /*  #swagger.tags = ['Tag']
-      #swagger.description = 'Delete a tag'
-      #swagger.responses[200] = {
-        description: 'Respond with success message',
-        schema: 'delete success'
-      }
-      #swagger.responses[400] = {
-        description: "Respond with 400 if tag not found.",
-        schema: "tag doesnt exist!"
-      }
-  */
   try {
     const { tagId } = req.params
     const tag = await Tag.findOne({
