@@ -5,7 +5,7 @@
     "title": "Receipt Reader REST API",
     "description": ""
   },
-  "host": "https://blooming-wildwood-31321.herokuapp.com/",
+  "host": "https://blooming-wildwood-31321.herokuapp.com",
   "basePath": "/",
   "tags": [],
   "schemes": [
